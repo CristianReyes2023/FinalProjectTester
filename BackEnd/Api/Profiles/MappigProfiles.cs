@@ -20,7 +20,7 @@ public class MappigProfiles : Profile
         CreateMap<Country, CountryDto>().ReverseMap();
         CreateMap<Employee, EmployeeDto>().ReverseMap();
         CreateMap<OfficeAddress, OfficeAddressDto>().ReverseMap();
-        CreateMap<Office, OfficeAddress>().ReverseMap();
+        CreateMap<Office, OfficeDto>().ReverseMap();
         CreateMap<OrderDetail, OrderDetailDto>().ReverseMap();
         CreateMap<Order, OrderDto>().ReverseMap();
         CreateMap<Payment, PaymentDto>().ReverseMap();
