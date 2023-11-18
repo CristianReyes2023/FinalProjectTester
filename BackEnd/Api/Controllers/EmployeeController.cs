@@ -16,14 +16,12 @@ namespace Api.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly GardensContext _context;
 
 
-        public EmployeeController(IUnitOfWork unitOfWork, IMapper mapper,GardensContext context)
+        public EmployeeController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _context = context;
 
         }
 
@@ -36,46 +34,6 @@ namespace Api.Controllers
             return _mapper.Map<List<EmployeeDto>>(results);
         }
 
-        [HttpGet("GetPositionNameEmailOfManager")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<PositionNameEmailOfManagerDto>>> GetPositionNameEmailOfManager(string position)
-        {
-            var results = await (from temployee in _context.Employees
-                                join tboss in _context.Bosses on temployee.IdBoosFk equals tboss.Id
-                                join tposition in _context.PositionsEmployees on temployee.IdPositionFk equals tposition.Id
-                                where tposition.Name == position
-                                select new PositionNameEmailOfManagerDto
-                                {
-                                    Position = tposition.Name,
-                                    Name = temployee.Name,
-                                    LastNameOne = temployee.LastNameOne,
-                                    LastNameTwo = temployee.LastNameTwo
-                                }).ToListAsync();
-
-            return Ok(results);
-        }
-
-
-        [HttpGet("GetEmployeeAreNotSalesAssociate")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<EmployeeAreNotSalesAssociateDto>>> GetEmployeeAreNotSalesAssociate()
-        {
-            var position = "Sales Associate";
-            var results = await (from temployee in _context.Employees
-                                join tboss in _context.Bosses on temployee.IdBoosFk equals tboss.Id
-                                join tposition in _context.PositionsEmployees on temployee.IdPositionFk equals tposition.Id
-                                where tposition.Name.Trim().ToLower() != position.Trim().ToLower()
-                                select new EmployeeAreNotSalesAssociateDto
-                                {
-                                    Name = temployee.Name,
-                                    LastNameOne = temployee.LastNameOne,
-                                    LastNameTwo = temployee.LastNameTwo,
-                                    Position = tposition.Name
-                                }).ToListAsync();
-            return Ok(results);
-        }
 
 
         [HttpGet("{id}")]

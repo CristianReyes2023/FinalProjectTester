@@ -16,14 +16,12 @@ namespace Api.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly GardensContext _context;
 
 
-        public ClientController(IUnitOfWork unitOfWork, IMapper mapper,GardensContext context)
+        public ClientController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _context = context;
         }
 
         [HttpGet]
@@ -35,24 +33,6 @@ namespace Api.Controllers
             return _mapper.Map<List<ClientDto>>(results);
         }
 
-        [HttpGet("GetClientsByCountry")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<ClientsByCountryDto>>> GetClientsByCountry(string country)
-        {
-            var results = await (from tclientaddress in _context.ClientsAddresses
-                                join tclient in _context.Clients on tclientaddress.IdClientFk equals tclient.Id
-                                join tcity in _context.Cities on tclientaddress.IdCityFk equals tcity.Id
-                                join tstate in _context.States on tcity.IdStateFk equals tstate.Id
-                                join tcountry in _context.Countries on tstate.IdCountryFk equals tcountry.Id
-                                where tcountry.Name.Trim().ToLower() == country.Trim().ToLower()
-                                select new ClientsByCountryDto
-                                {
-                                    NameClient = tclient.Name,
-                                    NameCountry = tcountry.Name
-                                }).ToListAsync();
-            return Ok(results);
-        }
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

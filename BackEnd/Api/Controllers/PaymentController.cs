@@ -7,6 +7,9 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.VisualBasic;
+using Persistence.Data;
 
 namespace Api.Controllers
 {
@@ -14,6 +17,7 @@ namespace Api.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+
 
         public PaymentController(IUnitOfWork unitOfWork, IMapper mapper)
         {
@@ -26,9 +30,11 @@ namespace Api.Controllers
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<PaymentDto>>> Get()
         {
-            var results = await _unitOfWork.OrderDetails.GetAllAsync();
+            var results = await _unitOfWork.Payments.GetAllAsync();
             return _mapper.Map<List<PaymentDto>>(results);
         }
+
+
 
         [HttpGet("{id}")]
         [ProducesResponseType(StatusCodes.Status200OK)]

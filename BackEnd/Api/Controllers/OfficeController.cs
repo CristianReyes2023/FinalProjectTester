@@ -16,14 +16,12 @@ namespace Api.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
-        private readonly GardensContext _context;
 
 
-        public OfficeController(IUnitOfWork unitOfWork, IMapper mapper, GardensContext context)
+        public OfficeController(IUnitOfWork unitOfWork, IMapper mapper)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
-            _context = context;
 
         }
 
@@ -34,23 +32,6 @@ namespace Api.Controllers
         {
             var results = await _unitOfWork.Offices.GetAllAsync();
             return _mapper.Map<List<OfficeDto>>(results);
-        }
-
-        [HttpGet("OfficeAndCity")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<OfficeAddressCityDto>>> GetOfficeAndCity()
-        {
-            var results = await (from toffice in _context.Offices
-                                join tofficeaddress in _context.OfficesAddresses on toffice.Id equals tofficeaddress.IdOfficeFk
-                                join tcity in _context.Cities on tofficeaddress.IdCityFk equals tcity.Id
-                                select new OfficeAddressCityDto
-                                {
-                                    IdOffice = toffice.Id,
-                                    NameCity = tcity.Name
-                                }).ToListAsync();
-
-            return Ok(results);
         }
 
         [HttpGet("{id}")]
