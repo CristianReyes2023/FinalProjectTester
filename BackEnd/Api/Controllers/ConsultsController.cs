@@ -243,4 +243,26 @@ public class ConsultsController : BaseController
             return Ok(results);
         }
 
+
+    //Consulta 10: Devuelve un listado con el código de pedido, código de cliente, fecha esperada y fecha de entrega de los pedidos cuya fecha de entrega ha sido al menos dos días antes de la fecha esperada.
+
+        [HttpGet("GetListOrderCompletedOnTime_10")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ListOrderWithDelayDto>>> GetListOrderCompletedOnTime()
+        {   
+            
+            var results = await (from torder in _context.Orders
+                                join tclient in _context.Orders on torder.IdClientFk equals tclient.Id 
+                                where (torder.DeadlineDate.DayNumber - torder.ExpectedDate.DayNumber) > 2
+                                select new ListOrderWithDelayDto
+                                {
+                                    IdOrder = torder.Id,
+                                    IdClient = tclient.Id,
+                                    DeadLine = torder.DeadlineDate,
+                                    ExpectedDay = torder.ExpectedDate
+                                })
+                                .ToListAsync();
+            return Ok(results);
+        }
 }
