@@ -7,5 +7,5 @@ using Domain.Entities;
 namespace Domain.Interfaces;
 public interface IBoss : IGenericRepository<Boss>
 {
-
+    Task<Boss> GetEmployeeByBossId(int id);
 }

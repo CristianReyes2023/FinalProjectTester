@@ -4,6 +4,7 @@ using System.Linq;
 using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 
 namespace App.Repositories;
@@ -15,4 +16,12 @@ public class BossRepository : GenericRepository<Boss>,IBoss
     {
         _context = context;
     }
+
+    public async Task<Boss> GetEmployeeByBossId(int id)
+    {
+        return await _context.Bosses.Where( x => x.Id == id)
+        .Include(x=>x.Employees)
+        .FirstAsync();
+    }
+
 }

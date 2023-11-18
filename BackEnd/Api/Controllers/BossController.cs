@@ -43,6 +43,19 @@ namespace Api.Controllers
             }
             return _mapper.Map<BossDto>(result);
         }
+        [HttpGet("GetEmployeeByBossId")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<BossAndEmployeesDto>> GetEmployeeByBossId(int id)
+        {
+            var result = await _unitOfWork.Bosses.GetEmployeeByBossId(id);
+            if (result == null)
+            {
+                return NotFound();
+            }
+            return _mapper.Map<BossAndEmployeesDto>(result);
+        }
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
