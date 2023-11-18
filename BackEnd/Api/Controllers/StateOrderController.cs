@@ -7,6 +7,8 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Persistence.Data;
 
 namespace Api.Controllers
 {
@@ -14,11 +16,15 @@ namespace Api.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly GardensContext _context;
 
-        public StateOrderController(IUnitOfWork unitOfWork, IMapper mapper)
+
+        public StateOrderController(IUnitOfWork unitOfWork, IMapper mapper,GardensContext context)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _context = context;
+
         }
 
         [HttpGet]
@@ -28,6 +34,19 @@ namespace Api.Controllers
         {
             var results = await _unitOfWork.StateOrders.GetAllAsync();
             return _mapper.Map<List<StateOrderDto>>(results);
+        }
+
+        [HttpGet("GetListOfStateOrder")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ListOfStateOrderDto>>> GetListOfStateOrder()
+        {
+            var results = await (from tstateorder in _context.StatesOrders
+                                select new ListOfStateOrderDto
+                                {
+                                    NameStateOrder = tstateorder.Name
+                                }).ToListAsync();
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
