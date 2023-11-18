@@ -1,6 +1,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Net.Sockets;
 using System.Threading.Tasks;
 using Api.Dto;
 using AutoMapper;
@@ -161,10 +162,10 @@ public class ConsultsController : BaseController
         return Ok(results);
     }
 
-    //Consulta 7: Devuelve un listado con el código de cliente de aquellos clientes que realizaron algún pago en 2008. Tenga en cuenta que deberá eliminar aquellos códigos de cliente que aparezcan repetidos. Resuelva la consulta:
+    //Consulta 8: Devuelve un listado con el código de cliente de aquellos clientes que realizaron algún pago en 2008. Tenga en cuenta que deberá eliminar aquellos códigos de cliente que aparezcan repetidos. Resuelva la consulta:
     // Utilizando la función YEAR de MySQL.
 
-    [HttpGet("GetCodeOfClientByDate(YearMySQL)_8")]
+    [HttpGet("GetCodeOfClientByDate(YearMySQL_8")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<CodeOfClientByDateYearDto>>> GetCodeOfClientByDate(int year)
@@ -184,7 +185,7 @@ public class ConsultsController : BaseController
 
     // Utilizando la función DATE_FORMAT de MySQL.
 
-[HttpGet("GetCodeOfClientByDate(DateFormatMySQL)_8")]
+[HttpGet("GetCodeOfClientByDate(DateFormatMySQL_8")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<CodeOfClientByDateYearDto>>> GetCodeOfClientByDateFromat(int year)
@@ -203,7 +204,7 @@ public class ConsultsController : BaseController
         }
     // Sin utilizar ninguna de las funciones anteriores.
 
-        [HttpGet("GetCodeOfClientByNormalDate)_8")]
+        [HttpGet("GetCodeOfClientByNormalDate_8")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<CodeOfClientByDateYearDto>>> GetCodeOfClientByNormalDate(int year)
@@ -221,5 +222,25 @@ public class ConsultsController : BaseController
             return Ok(results);
         }
 
+    //Consulta 9: Devuelve un listado con el código de pedido, código de cliente, fecha esperada y fecha de entrega de los pedidos que no han sido entregados a tiempo.
+
+        [HttpGet("GetListOrderWithDelay_9")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ListOrderWithDelayDto>>> GetListOrderWithDelay()
+        {
+            var results = await (from torder in _context.Orders
+                                join tclient in _context.Orders on torder.IdClientFk equals tclient.Id 
+                                where torder.ExpectedDate.Day > torder.DeadlineDate.Day
+                                select new ListOrderWithDelayDto
+                                {
+                                    IdOrder = torder.Id,
+                                    IdClient = tclient.Id,
+                                    DeadLine = torder.DeadlineDate,
+                                    ExpectedDay = torder.ExpectedDate
+                                })
+                                .ToListAsync();
+            return Ok(results);
+        }
 
 }
