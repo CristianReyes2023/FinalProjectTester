@@ -287,5 +287,24 @@ public class ConsultsController : BaseController
             return Ok(results);
         }
 
+        //Consulta 12: Devuelve un listado de todos los pedidos que han sido entregados en el mes de enero de cualquier año.
 
+        [HttpGet("GetListOfOrderInJanuary_12")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ListCancelledInYear2023Dto>>> GetListOfOrderInJanuary()
+        {
+            var results = await (from torder in _context.Orders
+                                join tstateorder in _context.StatesOrders on torder.IdStateOrderFk equals tstateorder.Id 
+                                where tstateorder.Id == 10 && torder.ExpectedDate.Month == 1
+                                select new ListCancelledInYear2023Dto
+                                {
+                                    IdOrder = torder.Id,
+                                    StateOrder = tstateorder.Name,
+                                    Comments = torder.Comments,
+                                    OrderDate = torder.OrderDate
+                                })
+                                .ToListAsync();
+            return Ok(results);
+        }
 }
