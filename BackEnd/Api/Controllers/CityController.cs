@@ -7,6 +7,8 @@ using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
+using Persistence.Data;
 
 namespace Api.Controllers
 {
@@ -14,11 +16,15 @@ namespace Api.Controllers
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
+        private readonly GardensContext _context;
 
-        public CityController(IUnitOfWork unitOfWork, IMapper mapper)
+
+        public CityController(IUnitOfWork unitOfWork, IMapper mapper,GardensContext context)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
+            _context = context;
+
         }
         [HttpGet]
         [ProducesResponseType(StatusCodes.Status200OK)]
@@ -27,6 +33,27 @@ namespace Api.Controllers
         {
             var results = await _unitOfWork.Cities.GetAllAsync();
             return _mapper.Map<List<CityDto>>(results);
+        }
+
+        [HttpGet("CityAndOfficePhoneCountry")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<CityAndOfficePhoneCountryDto>>> CityAndOfficePhoneCountry(string country)
+        {
+            var results = await (from toffice in _context.Offices
+                                join tofficeaddress in _context.OfficesAddresses on toffice.Id equals tofficeaddress.IdOfficeFk
+                                join tcity in _context.Cities on tofficeaddress.IdCityFk equals tcity.Id
+                                join tstate in _context.States on tcity.IdStateFk equals tstate.Id
+                                join tcountry in _context.Countries on tstate.IdCountryFk equals tcountry.Id
+                                where tcountry.Name == country
+                                select new CityAndOfficePhoneCountryDto
+                                {
+                                    PhoneNumber = toffice.Phone,
+                                    NameCity = tcity.Name,
+                                    NameCountry = tcountry.Name
+                                }).ToListAsync();
+
+            return Ok(results);
         }
 
         [HttpGet("{id}")]
