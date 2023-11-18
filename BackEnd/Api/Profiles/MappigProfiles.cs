@@ -31,6 +31,7 @@ public class MappigProfiles : Profile
         CreateMap<RangerProduct, RangerProductDto>().ReverseMap();
         CreateMap<State, StateDto>().ReverseMap();
         CreateMap<StateOrder, StateOrderDto>().ReverseMap();
-        CreateMap<Supplier, SupplierDto>().ReverseMap();
+        CreateMap<Supplier, SupplierDto>().ReverseMap(); 
+        CreateMap<Office,OfficeAddressCityDto>().ReverseMap();
     }
 }
