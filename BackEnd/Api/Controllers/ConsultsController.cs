@@ -45,17 +45,17 @@ public class ConsultsController : BaseController
 
     //Consulta 2: Devuelve un listado con la ciudad y el teléfono de las oficinas de España.    
 
-    [HttpGet("CityAndOfficePhoneCountry_2")]
+    [HttpGet("CityAndOfficePhoneSpain_2")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<CityAndOfficePhoneCountryDto>>> CityAndOfficePhoneCountry(string country)
+    public async Task<ActionResult<IEnumerable<CityAndOfficePhoneCountryDto>>> CityAndOfficePhoneCountry()
     {
         var results = await (from toffice in _context.Offices
                             join tofficeaddress in _context.OfficesAddresses on toffice.Id equals tofficeaddress.IdOfficeFk
                             join tcity in _context.Cities on tofficeaddress.IdCityFk equals tcity.Id
                             join tstate in _context.States on tcity.IdStateFk equals tstate.Id
                             join tcountry in _context.Countries on tstate.IdCountryFk equals tcountry.Id
-                            where tcountry.Name == country
+                            where tcountry.Name == "Spain"
                             select new CityAndOfficePhoneCountryDto
                             {
                                 PhoneNumber = toffice.Phone,
@@ -72,9 +72,9 @@ public class ConsultsController : BaseController
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
     [ProducesResponseType(StatusCodes.Status404NotFound)]
-    public async Task<ActionResult<BossAndEmployeesDto>> GetEmployeeByBossId(int id)
+    public async Task<ActionResult<BossAndEmployeesDto>> GetEmployeeByBossId()
     {
-        var result = await _unitOfWork.Bosses.GetEmployeeByBossId(id);
+        var result = await _unitOfWork.Bosses.GetEmployeeByBossId(1);
         if (result == null)
         {
             return NotFound();
@@ -87,12 +87,12 @@ public class ConsultsController : BaseController
     [HttpGet("GetPositionNameEmailOfManager_4")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<PositionNameEmailOfManagerDto>>> GetPositionNameEmailOfManager(string position)
+    public async Task<ActionResult<IEnumerable<PositionNameEmailOfManagerDto>>> GetPositionNameEmailOfManager()
     {
         var results = await (from temployee in _context.Employees
                              join tboss in _context.Bosses on temployee.IdBoosFk equals tboss.Id
                              join tposition in _context.PositionsEmployees on temployee.IdPositionFk equals tposition.Id
-                             where tposition.Name == position
+                             where tposition.Name == "Manager"
                              select new PositionNameEmailOfManagerDto
                              {
                                  Position = tposition.Name,
@@ -128,17 +128,17 @@ public class ConsultsController : BaseController
 
     //Consulta 6: Devuelve un listado con el nombre de los todos los clientes españoles.
 
-    [HttpGet("GetClientsByCountry_6")]
+    [HttpGet("GetClientsBySpain_6")]
     [ProducesResponseType(StatusCodes.Status200OK)]
     [ProducesResponseType(StatusCodes.Status400BadRequest)]
-    public async Task<ActionResult<IEnumerable<ClientsByCountryDto>>> GetClientsByCountry(string country)
+    public async Task<ActionResult<IEnumerable<ClientsByCountryDto>>> GetClientsByCountry()
     {
         var results = await (from tclientaddress in _context.ClientsAddresses
                              join tclient in _context.Clients on tclientaddress.IdClientFk equals tclient.Id
                              join tcity in _context.Cities on tclientaddress.IdCityFk equals tcity.Id
                              join tstate in _context.States on tcity.IdStateFk equals tstate.Id
                              join tcountry in _context.Countries on tstate.IdCountryFk equals tcountry.Id
-                             where tcountry.Name.Trim().ToLower() == country.Trim().ToLower()
+                             where tcountry.Name.Trim().ToLower() == "Spain"
                              select new ClientsByCountryDto
                              {
                                  NameClient = tclient.Name,
@@ -230,7 +230,7 @@ public class ConsultsController : BaseController
         public async Task<ActionResult<IEnumerable<ListOrderWithDelayDto>>> GetListOrderWithDelay()
         {
             var results = await (from torder in _context.Orders
-                                join tclient in _context.Orders on torder.IdClientFk equals tclient.Id 
+                                join tclient in _context.Clients on torder.IdClientFk equals tclient.Id 
                                 where torder.ExpectedDate.Day > torder.DeadlineDate.Day
                                 select new ListOrderWithDelayDto
                                 {
@@ -253,7 +253,7 @@ public class ConsultsController : BaseController
         {   
             
             var results = await (from torder in _context.Orders
-                                join tclient in _context.Orders on torder.IdClientFk equals tclient.Id 
+                                join tclient in _context.Clients on torder.IdClientFk equals tclient.Id 
                                 where (torder.DeadlineDate.DayNumber - torder.ExpectedDate.DayNumber) > 2
                                 select new ListOrderWithDelayDto
                                 {
@@ -265,4 +265,27 @@ public class ConsultsController : BaseController
                                 .ToListAsync();
             return Ok(results);
         }
+
+        //Consulta 11: Devuelve un listado de todos los pedidos que fueron rechazados en 2023.
+
+        [HttpGet("GetListCancelledInYear(2023)_11")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ListCancelledInYear2023Dto>>> GetListCancelledInYear()
+        {
+            var results = await (from torder in _context.Orders
+                                join tstateorder in _context.StatesOrders on torder.IdStateOrderFk equals tstateorder.Id 
+                                where tstateorder.Id == 5
+                                select new ListCancelledInYear2023Dto
+                                {
+                                    IdOrder = torder.Id,
+                                    StateOrder = tstateorder.Name,
+                                    Comments = torder.Comments,
+                                    OrderDate = torder.OrderDate
+                                })
+                                .ToListAsync();
+            return Ok(results);
+        }
+
+
 }
