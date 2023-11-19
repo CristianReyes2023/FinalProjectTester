@@ -376,21 +376,41 @@ public class ConsultsController : BaseController
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<ClientsFromMadridAndEmployeeDto>>> GetClientsFromMadridAndEmployee()
         {
-            var results = await (from tclientaddress in _context.ClientsAddresses
-                                join tcity in _context.Cities on tclientaddress.IdCityFk equals tcity.Id
-                                join tclient in _context.Clients on tclientaddress.IdClientFk equals tclient.Id
-                                join temployee in _context.Employees on tclient.IdEmployeeFk equals temployee.Id
-                                where tcity.Name == "Madrid" && ( (temployee.Id == 11) || (temployee.Id == 30) )
-                                select new ClientsFromMadridAndEmployeeDto
-                                {
-                                    NameCity = tcity.Name,
-                                    ClientName = tclient.Name,
-                                    IdEmployee = temployee.Id
-                                    
-                                })
-                                .ToListAsync();
+            var results = await _context.ClientsAddresses
+                .Where(tclientaddress => tclientaddress.Cities.Name == "Madrid" &&
+                                        (tclientaddress.Clients.Employees.Id == 11 || tclientaddress.Clients.Employees.Id == 30))
+                .Select(tclientaddress => new ClientsFromMadridAndEmployeeDto
+                {
+                    NameCity = tclientaddress.Cities.Name,
+                    ClientName = tclientaddress.Clients.Name,
+                    IdEmployee = tclientaddress.Clients.Employees.Id
+                })
+                .ToListAsync();
+
             return Ok(results);
         }
+        
+        //Columna 17:Obtén un listado con el nombre de cada cliente y el nombre y apellido de su representante de ventas.
 
+        [HttpGet("GetClientsAndSalesEmployee_17")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ClientsAndSalesEmployeeDto>>> GetClientsAndSalesEmployee()
+        {
+            var results = await (from tclient in _context.Clients
+                                join temployee in _context.Employees on tclient.IdEmployeeFk equals temployee.Id
+                                join tpositionemployee in _context.PositionsEmployees on temployee.IdPositionFk equals tpositionemployee.Id
+                                where tpositionemployee.Id == 3
+                                select new ClientsAndSalesEmployeeDto
+                                {
+                                    ClientName = tclient.Name,
+                                    EmployeeName = temployee.Name,
+                                    LastNameOne = temployee.LastNameOne,
+                                    LastNameTwo = temployee.LastNameTwo
+                                })
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
 
 }
