@@ -638,4 +638,27 @@ public class ConsultsController : BaseController
                                 ;
             return Ok(results);
         }
+
+        //Columna 27: Devuelve un listado de las diferentes gamas de producto que ha comprado cada cliente.
+        [HttpGet("GetRangerProductByClient_27")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<RangerProductByClientDto>>> GetRangerProductByClient()
+        {
+            var results = await (from torderdetail in _context.OrdersDetails
+                                join torder in _context.Orders on torderdetail.IdOrderFk equals torder.Id
+                                join tclient in _context.Clients on torder.IdClientFk equals tclient.Id
+                                join tproduct in _context.Products on torderdetail.IdProductFk equals tproduct.Id
+                                join trangerproduct in _context.RangersProducts on tproduct.IdRangerFk equals trangerproduct.Id
+                                select new RangerProductByClientDto
+                                {
+                                    NameClient = tclient.Name,
+                                    Order = torder.Id,
+                                    NameProduct = tproduct.Name,
+                                    DescriptionRangerProduct = trangerproduct.DescriptionText
+                                })
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
 }
