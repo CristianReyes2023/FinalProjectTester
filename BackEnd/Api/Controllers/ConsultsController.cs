@@ -32,13 +32,13 @@ public class ConsultsController : BaseController
     public async Task<ActionResult<IEnumerable<OfficeAddressCityDto>>> GetOfficeAndCity()
     {
         var results = await (from toffice in _context.Offices
-                             join tofficeaddress in _context.OfficesAddresses on toffice.Id equals tofficeaddress.IdOfficeFk
-                             join tcity in _context.Cities on tofficeaddress.IdCityFk equals tcity.Id
-                             select new OfficeAddressCityDto
-                             {
-                                 IdOffice = toffice.Id,
-                                 NameCity = tcity.Name
-                             }).ToListAsync();
+                            join tofficeaddress in _context.OfficesAddresses on toffice.Id equals tofficeaddress.IdOfficeFk
+                            join tcity in _context.Cities on tofficeaddress.IdCityFk equals tcity.Id
+                            select new OfficeAddressCityDto
+                            {
+                                IdOffice = toffice.Id,
+                                NameCity = tcity.Name
+                            }).ToListAsync();
 
         return Ok(results);
     }
@@ -307,4 +307,27 @@ public class ConsultsController : BaseController
                                 .ToListAsync();
             return Ok(results);
         }
+
+        //Consulta 13: Devuelve un listado de todos los pedidos que han sido entregados en el mes de enero de cualquier año.
+
+        [HttpGet("GetListOfPayPalPaymentJanuary_13")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ListCancelledInYear2023Dto>>> GetListOfPayPalPaymentJanuary()
+        {
+            var results = await (from torder in _context.Orders
+                                join tstateorder in _context.StatesOrders on torder.IdStateOrderFk equals tstateorder.Id 
+                                where tstateorder.Id == 10 && torder.ExpectedDate.Month == 1
+                                select new ListCancelledInYear2023Dto
+                                {
+                                    IdOrder = torder.Id,
+                                    StateOrder = tstateorder.Name,
+                                    Comments = torder.Comments,
+                                    OrderDate = torder.OrderDate
+                                })
+                                .ToListAsync();
+            return Ok(results);
+        }
+
+
 }
