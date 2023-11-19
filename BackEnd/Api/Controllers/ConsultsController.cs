@@ -598,4 +598,24 @@ public class ConsultsController : BaseController
                                 ;
             return Ok(results);
         }
+
+        //Columna 25: Devuelve un listado con el nombre de los empleados junto con el nombre de sus jefes.
+
+        [HttpGet("GetEmployeesAndBossAndBosses_24")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<EmployeesAndBossAndBossesDto>>> EmployeesAndBossAndBosses()
+        {
+            var results = await (from temployee in _context.Employees
+                                join tboss in _context.Bosses on temployee.IdBoosFk equals tboss.Id
+                                select new EmployeesAndBossAndBossesDto
+                                {
+                                    EmployeeName = temployee.Name,
+                                    BossName = tboss.Name,
+                                    IdBoosFk = tboss.Id
+                                })
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
 }
