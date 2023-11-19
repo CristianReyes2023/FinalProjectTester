@@ -368,5 +368,29 @@ public class ConsultsController : BaseController
             return Ok(results);
         }
 
+        //Columna 16:Devuelve un listado con todos los clientes que sean de la ciudad de Madrid y cuyo representante de ventas tenga el código de empleado 11 o 30.
+        //Se agregaron datos
+
+        [HttpGet("GetClientsFromMadridAndEmployee(11And30)_16")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ClientsFromMadridAndEmployeeDto>>> GetClientsFromMadridAndEmployee()
+        {
+            var results = await (from tclientaddress in _context.ClientsAddresses
+                                join tcity in _context.Cities on tclientaddress.IdCityFk equals tcity.Id
+                                join tclient in _context.Clients on tclientaddress.IdClientFk equals tclient.Id
+                                join temployee in _context.Employees on tclient.IdEmployeeFk equals temployee.Id
+                                where tcity.Name == "Madrid" && ( (temployee.Id == 11) || (temployee.Id == 30) )
+                                select new ClientsFromMadridAndEmployeeDto
+                                {
+                                    NameCity = tcity.Name,
+                                    ClientName = tclient.Name,
+                                    IdEmployee = temployee.Id
+                                    
+                                })
+                                .ToListAsync();
+            return Ok(results);
+        }
+
 
 }
