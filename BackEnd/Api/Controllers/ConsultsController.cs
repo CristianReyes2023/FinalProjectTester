@@ -308,26 +308,44 @@ public class ConsultsController : BaseController
             return Ok(results);
         }
 
-        //Consulta 13: Devuelve un listado de todos los pedidos que han sido entregados en el mes de enero de cualquier año.
+        //Consulta 13: Devuelve un listado con todos los pagos que se realizaron en el año 2023 mediante Paypal. Ordene el resultado de mayor a menor.
 
-        [HttpGet("GetListOfPayPalPaymentJanuary_13")]
+        [HttpGet("GetListOfPayPalPayment_13")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<ListCancelledInYear2023Dto>>> GetListOfPayPalPaymentJanuary()
+        public async Task<ActionResult<IEnumerable<ListOfPayPalPaymentDto>>> GetListOfPayPalPayment()
         {
-            var results = await (from torder in _context.Orders
-                                join tstateorder in _context.StatesOrders on torder.IdStateOrderFk equals tstateorder.Id 
-                                where tstateorder.Id == 10 && torder.ExpectedDate.Month == 1
-                                select new ListCancelledInYear2023Dto
+            var results = await (from tpayment in _context.Payments
+                                join tpaymetmeth in _context.PaymentsMethods on tpayment.IdPaymenMetFk equals tpaymetmeth.Id 
+                                where  tpaymetmeth.MethodName == "PayPal" && tpayment.DatePayment.Year == 2023
+                                select new ListOfPayPalPaymentDto
                                 {
-                                    IdOrder = torder.Id,
-                                    StateOrder = tstateorder.Name,
-                                    Comments = torder.Comments,
-                                    OrderDate = torder.OrderDate
+                                    MethodPayment = tpaymetmeth.MethodName,
+                                    DatePayment = tpayment.DatePayment
                                 })
                                 .ToListAsync();
             return Ok(results);
         }
 
+        //Columna 14:Devuelve un listado con todas las formas de pago que aparecen en la tabla pago. Tenga en cuenta que no deben aparecer formas de pago repetidas.
 
+
+        // [HttpGet("GetListOfPayMentMethods_13")]
+        // [ProducesResponseType(StatusCodes.Status200OK)]
+        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        // public async Task<ActionResult<IEnumerable<ListCancelledInYear2023Dto>>> GetListOfPayMentMethods()
+        // {
+        //     var results = await (from tpayment in _context.Payments
+        //                         join tpaymentmeth in _context.PaymentsMethods on tpayment.IdPaymenMetFk equals tpaymentmeth.Id 
+        //                         where tstateorder.Id == 10 && torder.ExpectedDate.Month == 1
+        //                         select new ListCancelledInYear2023Dto
+        //                         {
+        //                             IdOrder = torder.Id,
+        //                             StateOrder = tstateorder.Name,
+        //                             Comments = torder.Comments,
+        //                             OrderDate = torder.OrderDate
+        //                         })
+        //                         .ToListAsync();
+        //     return Ok(results);
+        // }
 }
