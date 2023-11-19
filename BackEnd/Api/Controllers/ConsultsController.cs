@@ -466,7 +466,7 @@ public class ConsultsController : BaseController
 
         //Columna 20: Devuelve el nombre de los clientes que han hecho pagos y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante.
 
-        [HttpGet("GetClientsDidPaymentsAndContactClient_19")]
+        [HttpGet("GetClientsDidPaymentsAndContactClient_20")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<ClientsDidPaymentsAndContactClientDto>>> GetClientsDidPaymentsAndContactClient()
@@ -479,6 +479,35 @@ public class ConsultsController : BaseController
                                 join tpositionemployee in _context.PositionsEmployees on temployee.IdPositionFk equals tpositionemployee.Id
                                 join tpayment in _context.Payments on tclient.Id equals tpayment.IdClientFk
                                 where tpayment.Total > 0 
+                                select new ClientsDidPaymentsAndContactClientDto
+                                {
+                                    ClientName = tclient.Name,
+                                    EmployeeName = temployee.Name,
+                                    LastNameOne = temployee.LastNameOne,
+                                    LastNameTwo = temployee.LastNameTwo,
+                                    PaymentsTotal = tpayment.Total,
+                                    CityOfOffice = tcity.Name
+                                })
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
+
+        //Columna 21: Devuelve el nombre de los clientes que no hayan hecho pagos y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante.
+
+        [HttpGet("GetClientsNotPaymentsAndContactClient_21")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ClientsDidPaymentsAndContactClientDto>>> ClientsNotPaymentsAndContactClient()
+        {
+            var results = await (from tclient in _context.Clients
+                                join temployee in _context.Employees on tclient.IdEmployeeFk equals temployee.Id
+                                join toffice in _context.Offices on  temployee.IdOfficeFk equals toffice.Id
+                                join tofficeaddress in _context.OfficesAddresses on toffice.Id equals tofficeaddress.IdOfficeFk
+                                join tcity in _context.Cities on tofficeaddress.IdCityFk equals tcity.Id
+                                join tpositionemployee in _context.PositionsEmployees on temployee.IdPositionFk equals tpositionemployee.Id
+                                join tpayment in _context.Payments on tclient.Id equals tpayment.IdClientFk
+                                where tpayment.Total == 0 
                                 select new ClientsDidPaymentsAndContactClientDto
                                 {
                                     ClientName = tclient.Name,
