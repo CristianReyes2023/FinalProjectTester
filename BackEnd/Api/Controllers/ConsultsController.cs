@@ -437,7 +437,30 @@ public class ConsultsController : BaseController
                                 ;
             return Ok(results);
         }
-        
-        //Columna 18:Muestra el nombre de los clientes que hayan realizado pagos junto con el nombre de sus representantes de ventas.
 
+        //Columna 19:Muestra el nombre de los clientes que no hayan realizado pagos junto con el nombre de sus representantes de ventas.
+
+        [HttpGet("GetClientsDontDidPaymentsAndEmployeeSalesAssociate_19")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ClientsDidPaymentsAndEmployeesDto>>> GetClientsDontDidPaymentsAndEmployeeSalesAssociate()
+        {
+            var results = await (from tclient in _context.Clients
+                                join temployee in _context.Employees on tclient.IdEmployeeFk equals temployee.Id
+                                join tpositionemployee in _context.PositionsEmployees on temployee.IdPositionFk equals tpositionemployee.Id
+                                join tpayment in _context.Payments on tclient.Id equals tpayment.IdClientFk
+                                where tpayment.Total == 0 && tpositionemployee.Name == "Sales Associate"
+                                select new ClientsDidPaymentsAndEmployeesDto
+                                {
+                                    ClientId = tclient.Name,
+                                    EmployeeName = temployee.Name,
+                                    LastNameOne = temployee.LastNameOne,
+                                    LastNameTwo = temployee.LastNameTwo,
+                                    PaymentsTotal = tpayment.Total,
+                                    IdPayment = tpayment.Id
+                                })
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
 }
