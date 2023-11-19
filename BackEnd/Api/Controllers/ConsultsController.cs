@@ -521,4 +521,35 @@ public class ConsultsController : BaseController
                                 ;
             return Ok(results);
         }
+
+        //Columna 22: Lista la dirección de las oficinas que tengan clientes en Madrid.
+
+        [HttpGet("GetOfficeInMadrid_22")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<OfficeInMadridDto>>> GetOfficeInMadridt()
+        {
+            var results = await (from tofficeaddress in _context.OfficesAddresses
+                                join tcity in _context.Cities on tofficeaddress.IdCityFk equals tcity.Id
+                                join tclientaddress in _context.ClientsAddresses on tcity.Id equals tclientaddress.IdCityFk
+                                join tclient in _context.Clients on  tclientaddress.IdClientFk equals tclient.Id
+                                where tclientaddress.IdClientFk == 7
+                                select new OfficeInMadridDto
+                                {
+                                    MainNumber = tofficeaddress.MainNumber,
+                                    Letter = tofficeaddress.Letter,
+                                    Bis = tofficeaddress.Bis,
+                                    SecLet = tofficeaddress.SecLet,
+                                    Cardinal = tofficeaddress.Cardinal,
+                                    SecNum = tofficeaddress.SecNum,
+                                    SecCard = tofficeaddress.SecCard,
+                                    Complet = tofficeaddress.Complet,
+                                    PosCod = tofficeaddress.PosCod,
+                                    NameCity = tcity.Name,
+                                    ClientsName = tclient.Name
+                                })
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
 }
