@@ -345,4 +345,28 @@ public class ConsultsController : BaseController
                                 .ToListAsync();
             return Ok(results);
         }
+
+        //Columna 15:Devuelve un listado con todos los productos que pertenecen a la gama Garden Tools Set y que tienen más de 100 unidades en stock. El listado deberá estar ordenado por su precio de venta, mostrando en primer lugar los de mayor precio.  
+
+        [HttpGet("GetListProductsGardenToolsSet_15")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ListProductsGardenToolSetDto>>> GetListProductsGardenToolsSet()
+        {
+            var results = await (from tproduct in _context.Products
+                                join trangerproduct in _context.RangersProducts on tproduct.IdRangerFk equals trangerproduct.Id
+                                where tproduct.IdRangerFk == "RNG002" && tproduct.Stock > 100
+                                select new ListProductsGardenToolSetDto
+                                {
+                                    RanferProduct = trangerproduct.DescriptionText,
+                                    Name = tproduct.Name,
+                                    ProductPrice = tproduct.PriceSale
+                                })
+                                .OrderByDescending(p => p.ProductPrice)
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
+
+
 }
