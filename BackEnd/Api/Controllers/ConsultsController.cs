@@ -599,9 +599,9 @@ public class ConsultsController : BaseController
             return Ok(results);
         }
 
-        //Columna 25: Devuelve un listado con el nombre de los empleados junto con el nombre de sus jefes.
+        //Columna 25: Devuelve un listado que muestre el nombre de cada empleados, el nombre de su jefe y el nombre del jefe de sus jefe.
 
-        [HttpGet("GetEmployeesAndBossAndBosses_24")]
+        [HttpGet("GetEmployeesAndBossAndBosses_25")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<IEnumerable<EmployeesAndBossAndBossesDto>>> EmployeesAndBossAndBosses()
@@ -613,6 +613,26 @@ public class ConsultsController : BaseController
                                     EmployeeName = temployee.Name,
                                     BossName = tboss.Name,
                                     IdBoosFk = tboss.Id
+                                })
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
+
+        //Columna 26: Devuelve el nombre de los clientes a los que no se les ha entregado a tiempo un pedido.
+        [HttpGet("GetClientsWithDelayOrder_26")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ClientsWithDelayOrderDto>>> ClientsWithDelayOrder()
+        {
+            var results = await (from torder in _context.Orders
+                                join tclient in _context.Clients on torder.IdClientFk equals tclient.Id
+                                where (torder.ExpectedDate.DayNumber - torder.DeadlineDate.DayNumber ) > 0
+                                select new ClientsWithDelayOrderDto
+                                {
+                                    NameClient = tclient.Name,
+                                    IdOrder = torder.Id,
+                                    DelayDays = (torder.ExpectedDate.DayNumber - torder.DeadlineDate.DayNumber)
                                 })
                                 .ToListAsync()
                                 ;
