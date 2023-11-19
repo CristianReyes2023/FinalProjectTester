@@ -330,22 +330,19 @@ public class ConsultsController : BaseController
         //Columna 14:Devuelve un listado con todas las formas de pago que aparecen en la tabla pago. Tenga en cuenta que no deben aparecer formas de pago repetidas.
 
 
-        // [HttpGet("GetListOfPayMentMethods_13")]
-        // [ProducesResponseType(StatusCodes.Status200OK)]
-        // [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        // public async Task<ActionResult<IEnumerable<ListCancelledInYear2023Dto>>> GetListOfPayMentMethods()
-        // {
-        //     var results = await (from tpayment in _context.Payments
-        //                         join tpaymentmeth in _context.PaymentsMethods on tpayment.IdPaymenMetFk equals tpaymentmeth.Id 
-        //                         where tstateorder.Id == 10 && torder.ExpectedDate.Month == 1
-        //                         select new ListCancelledInYear2023Dto
-        //                         {
-        //                             IdOrder = torder.Id,
-        //                             StateOrder = tstateorder.Name,
-        //                             Comments = torder.Comments,
-        //                             OrderDate = torder.OrderDate
-        //                         })
-        //                         .ToListAsync();
-        //     return Ok(results);
-        // }
+        [HttpGet("GetListAllMethodsOfPayment_14")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ListAllMethodsOfPaymentDto>>> GetListAllMethodsOfPayment()
+        {
+            var results = await (from tpayment in _context.Payments
+                                join tpaymetmeth in _context.PaymentsMethods on tpayment.IdPaymenMetFk equals tpaymetmeth.Id
+                                group tpayment by tpayment.IdPaymenMetFk into paymentGroup
+                                select new ListAllMethodsOfPaymentDto
+                                {
+                                    MethodPayment = paymentGroup.First().PaymentsMethods.MethodName
+                                })
+                                .ToListAsync();
+            return Ok(results);
+        }
 }
