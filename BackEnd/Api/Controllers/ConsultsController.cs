@@ -552,4 +552,31 @@ public class ConsultsController : BaseController
                                 ;
             return Ok(results);
         }
+
+        //Columna 23: Devuelve el nombre de los clientes y el nombre de sus representantes junto con la ciudad de la oficina a la que pertenece el representante.
+
+        [HttpGet("GetClientEmployeeAndCity_23")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult<IEnumerable<ClientEmployeeAndCityDto>>> GetClientEmployeeAndCity()
+        {
+            var results = await (from tclient in _context.Clients
+                                join temployee in _context.Employees on tclient.IdEmployeeFk equals temployee.Id
+                                join toffice in _context.Offices on temployee.IdOfficeFk equals toffice.Id
+                                join tofficeaddress in _context.OfficesAddresses on toffice.Id equals tofficeaddress.IdOfficeFk
+                                join tcity in _context.Cities on tofficeaddress.IdCityFk equals tcity.Id
+                                select new ClientEmployeeAndCityDto
+                                {
+                                    ClientName = tclient.Name,
+                                    PhoneNumber = tclient.PhoneNumber,
+                                    NameEmployee = temployee.Name,
+                                    LastNameOneEmployee = temployee.LastNameOne,
+                                    LastNameTwoEmployee = temployee.LastNameTwo,
+                                    CityOffice = tcity.Name
+                                })
+                                .ToListAsync()
+                                ;
+            return Ok(results);
+        }
+        
 }
