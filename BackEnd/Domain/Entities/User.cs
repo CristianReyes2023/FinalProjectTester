@@ -1,18 +1,12 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+namespace Domain.Entities;
 
-namespace Domain.Entities
+public class User : BaseEntityInt
 {
-    public class User : BaseEntityInt
-    {
-        public string Username { get; set; } = null!;
-        public string Email { get; set; } = null!;
-        public string Password { get; set; } = null!;
-        public ICollection<RefreshToken> RefreshTokens { get; set; }
-        public ICollection<Rol> Rols { get; set; } = new HashSet<Rol>();
-        public ICollection<UserRol> UserRols { get; set; }
-    }
+    public string Username { get; set; }
+    public string Email { get; set; }
+    public string Password { get; set; }
+    public ICollection<Rol> Rols { get; set; } = new HashSet<Rol>();
+    public ICollection<RefreshToken> RefreshTokens { get; set; } = new HashSet<RefreshToken>();
+    public ICollection<UserRol> UsersRols { get; set; }
 }
-

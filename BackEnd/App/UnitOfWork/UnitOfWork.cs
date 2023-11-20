@@ -38,7 +38,7 @@ public class UnitOfWork : IUnitOfWork, IDisposable
     private IStateOrder _stateOrders;
     private ISupplier _supplier;
     private IUser _users;
-    private IRol _rols;
+    private IRol _roles;
     private IRefreshToken _refreshTokens;
 
 
@@ -275,15 +275,15 @@ public class UnitOfWork : IUnitOfWork, IDisposable
         }
     }
 
-    public IRol Rols
+    public IRol Roles
     {
         get
         {
-            if (_rols == null)
+            if (_roles == null)
             {
-                _rols = new RolRepository (_context); // Remember putting the base in the repository of this entity
+                _roles = new RolRepository (_context); // Remember putting the base in the repository of this entity
             }
-            return _rols;
+            return _roles;
         }
     }
     

@@ -6,105 +6,105 @@ using Api.Dto;
 using AutoMapper;
 using Domain.Entities;
 using Domain.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Persistence.Data;
 
-namespace Api.Controllers
+namespace Api.Controllers;
+[Authorize(Roles = "Manager , Employee")]
+public class CityController : BaseController
 {
-    public class CityController : BaseController
+    private readonly IUnitOfWork _unitOfWork;
+    private readonly IMapper _mapper;
+
+
+
+    public CityController(IUnitOfWork unitOfWork, IMapper mapper)
     {
-        private readonly IUnitOfWork _unitOfWork;
-        private readonly IMapper _mapper;
+        _unitOfWork = unitOfWork;
+        _mapper = mapper;
+
+    }
+    [HttpGet]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<IEnumerable<CityDto>>> Get()
+    {
+        var results = await _unitOfWork.Cities.GetAllAsync();
+        return _mapper.Map<List<CityDto>>(results);
+    }
 
 
-
-        public CityController(IUnitOfWork unitOfWork, IMapper mapper)
+    [HttpGet("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CityDto>> Get(int id)
+    {
+        var result = await _unitOfWork.Cities.GetByIdAsync(id);
+        if (result == null)
         {
-            _unitOfWork = unitOfWork;
-            _mapper = mapper;
-
+            return NotFound();
         }
-        [HttpGet]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<CityDto>>> Get()
+        return _mapper.Map<CityDto>(result);
+    }
+
+    [HttpPost]
+    [ProducesResponseType(StatusCodes.Status201Created)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    public async Task<ActionResult<CityDto>> Post(CityDto resultDto)
+    {
+        var result = _mapper.Map<City>(resultDto);
+        _unitOfWork.Cities.Add(result);
+        await _unitOfWork.SaveAsync();
+        if (result == null)
         {
-            var results = await _unitOfWork.Cities.GetAllAsync();
-            return _mapper.Map<List<CityDto>>(results);
+            return BadRequest();
         }
+        resultDto.Id = result.Id;
+        return CreatedAtAction(nameof(Post), new { id = resultDto.Id }, resultDto);
+    }
 
-
-        [HttpGet("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CityDto>> Get(int id)
+    [HttpPut("{id}")]
+    [ProducesResponseType(StatusCodes.Status200OK)]
+    [ProducesResponseType(StatusCodes.Status400BadRequest)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<ActionResult<CityDto>> Put(int id, [FromBody] CityDto resultDto)
+    {
+        var result = await _unitOfWork.Cities.GetByIdAsync(id);
+        if (result == null)
         {
-            var result = await _unitOfWork.Cities.GetByIdAsync(id);
-            if (result == null)
-            {
-                return NotFound();
-            }
-            return _mapper.Map<CityDto>(result);
+            return NotFound();
         }
-
-        [HttpPost]
-        [ProducesResponseType(StatusCodes.Status201Created)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<CityDto>> Post(CityDto resultDto)
+        if (resultDto.Id == 0)
         {
-            var result = _mapper.Map<City>(resultDto);
-            _unitOfWork.Cities.Add(result);
-            await _unitOfWork.SaveAsync();
-            if (result == null)
-            {
-                return BadRequest();
-            }
-            resultDto.Id = result.Id;
-            return CreatedAtAction(nameof(Post), new { id = resultDto.Id }, resultDto);
+            resultDto.Id = id;
         }
-
-        [HttpPut("{id}")]
-        [ProducesResponseType(StatusCodes.Status200OK)]
-        [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<ActionResult<CityDto>> Put(int id, [FromBody] CityDto resultDto)
+        if (resultDto.Id != id)
         {
-            var result = await _unitOfWork.Cities.GetByIdAsync(id);
-            if (result == null)
-            {
-                return NotFound();
-            }
-            if (resultDto.Id == 0)
-            {
-                resultDto.Id = id;
-            }
-            if (resultDto.Id != id)
-            {
-                return BadRequest();
-            }
-            // Update the properties of the existing entity with values from auditoriaDto
-            _mapper.Map(resultDto, result);
-            // The context is already tracking result, so no need to attach it
-            await _unitOfWork.SaveAsync();
-            // Return the updated entity
-            return _mapper.Map<CityDto>(result);
+            return BadRequest();
         }
+        // Update the properties of the existing entity with values from auditoriaDto
+        _mapper.Map(resultDto, result);
+        // The context is already tracking result, so no need to attach it
+        await _unitOfWork.SaveAsync();
+        // Return the updated entity
+        return _mapper.Map<CityDto>(result);
+    }
 
-        [HttpDelete("{id}")]
-        [ProducesResponseType(StatusCodes.Status204NoContent)]
-        [ProducesResponseType(StatusCodes.Status404NotFound)]
-        public async Task<IActionResult> Delete(int id)
+    [HttpDelete("{id}")]
+    [ProducesResponseType(StatusCodes.Status204NoContent)]
+    [ProducesResponseType(StatusCodes.Status404NotFound)]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var result = await _unitOfWork.Cities.GetByIdAsync(id);
+        if (result == null)
         {
-            var result = await _unitOfWork.Cities.GetByIdAsync(id);
-            if (result == null)
-            {
-                return NotFound();
-            }
-            _unitOfWork.Cities.Remove(result);
-            await _unitOfWork.SaveAsync();
-            return NoContent();
+            return NotFound();
         }
+        _unitOfWork.Cities.Remove(result);
+        await _unitOfWork.SaveAsync();
+        return NoContent();
     }
 }

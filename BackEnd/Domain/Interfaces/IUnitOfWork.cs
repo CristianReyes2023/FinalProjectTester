@@ -27,7 +27,7 @@ public interface IUnitOfWork
     IStateOrder StateOrders {get;}
     ISupplier Suppliers {get;}
     IRefreshToken RefreshTokens {get;}
-    IRol Rols {get;}
+    IRol Roles {get;}
     IUser Users {get;}
     Task<int> SaveAsync();
 }

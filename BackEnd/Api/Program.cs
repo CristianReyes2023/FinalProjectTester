@@ -2,9 +2,15 @@ using System.Reflection;
 using Api.Extensions;
 using AspNetCoreRateLimit;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.OpenApi.Models;
 using Persistence.Data;
+using Swashbuckle.AspNetCore.Filters;
 
 var builder = WebApplication.CreateBuilder(args);
+// var logger = new LoggerConfiguration()
+// 					.ReadFrom.Configuration(builder.Configuration)
+// 					.Enrich.FromLogContext()
+// 					.CreateLogger();
 
 // Add services to the container.
 
@@ -23,6 +29,18 @@ builder.Services.AddDbContext<GardensContext>(options =>
 {
     string  connectionString = builder.Configuration.GetConnectionString("MySqlConex");
     options.UseMySql(connectionString, ServerVersion.AutoDetect(connectionString));
+});
+
+builder.Services.AddSwaggerGen(options =>
+{
+    options.AddSecurityDefinition("oauth2", new OpenApiSecurityScheme
+    {
+        In = ParameterLocation.Header,
+        Name = "Authorization",
+        Type = SecuritySchemeType.ApiKey
+    });
+
+    options.OperationFilter<SecurityRequirementsOperationFilter>();
 });
 
 var app = builder.Build();
@@ -54,6 +72,7 @@ app.UseIpRateLimiting();
 app.UseCors("CorsPolicy");
 app.UseHttpsRedirection();
 
+app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();

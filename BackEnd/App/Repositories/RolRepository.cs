@@ -1,20 +1,16 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
 using Domain.Entities;
 using Domain.Interfaces;
+using Persistence;
 using Persistence.Data;
 
 namespace App.Repositories;
 
-public class RolRepository : GenericRepository<Rol>,IRol
-
+public class RolRepository : GenericRepository<Rol>, IRol
 {
     private readonly GardensContext _context;
 
     public RolRepository(GardensContext context) : base(context)
     {
-        _context = context;
+       _context = context;
     }
 }
