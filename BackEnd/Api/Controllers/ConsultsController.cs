@@ -664,20 +664,23 @@ public class ConsultsController : BaseController
 
         //Columna 28: Devuelve un listado que muestre solamente los clientes que no han realizado ningún pago.
 
-        [HttpGet("GetListOnlyClientsDidntAPay_28")]
+        [HttpGet("GetListClientsWithoutOrders_29")]
         [ProducesResponseType(StatusCodes.Status200OK)]
         [ProducesResponseType(StatusCodes.Status400BadRequest)]
-        public async Task<ActionResult<IEnumerable<ListOnlyClientsDidntAPayDto>>> GetListOnlyClientsDidntAPay()
-        {
-            var results = await _context.Payments
-                                .Where(x => x.Total == 0)
-                                .Select(x=> new ListOnlyClientsDidntAPayDto
-                                {
-                                    NameClient = x.Clients.Name,
-                                    PhoneNumber = x.Clients.PhoneNumber,
-                                    TotalPayment = x.Total
-                                })
-                                .ToListAsync();
+        public async Task<ActionResult<IEnumerable<ListOnlyClientsNotBuyDto>>> GetListClientsWithoutOrders()
+            {
+                var results = await (from tclient in _context.Clients
+                        where !_context.Orders.Any(torder => torder.IdClientFk == tclient.Id)
+                        select new ListOnlyClientsNotBuyDto
+                        {
+                            NameClient = tclient.Name,
+                             // Otras propiedades del DTO según sea necesario
+                        })
+                        .ToListAsync();
+
             return Ok(results);
         }
+
+
+        //Columna 29: Devuelve un listado que muestre solamente los clientes que no han realizado ningún pedido.
 }
