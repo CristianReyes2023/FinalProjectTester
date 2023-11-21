@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="pt=br">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Login</title>
+
+    <!--CSS-->
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="css/media.css">
+
+    <!--JS & jQuery-->
+    <script type="text/javascript" src="js/script.js"></script>
+    <script type="text/javascript" src="js/login.js"></script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js" integrity="sha256-/xUj+3OJU5yExlq6GSYGSHk7tPXikynS7ogEvDej/m4=" crossorigin="anonymous"></script>
+</head>
+<body>
+    <div id="container">
+        <div class="banner">
+            <img src="../Imagens/Garden-Logo.png" alt="imagem-login">
+        </div>
+
+        <div class="box-login">
+            <h1>
+                Iniciar sesión
+            </h1>
+
+            <div class="box">
+                <form id="loginForm" class="box">
+                    <label for="email"></label>
+                    <input type="text" id="email" name="email" placeholder="email" required>
+                    <label for="username"></label>
+                    <input type="text" id="username" name="username" placeholder="Usuario" required>
+                    <label for="password"></label>
+                    <input type="password" id="password" name="password" placeholder="password" required>
+                    <button type="button" onclick="handleLogin()">Iniciar</button>
+                </form>
+                <div class="social">
+                    <img src="img/facebook.png" alt="facebook" class="social">
+                    <img src="img/google.png" alt="google" class="social">
+                    <img src="img/twitter.png" alt="twitter" class="social">
+                    <img src="img/github.png" alt="github" class="social">
+                </div>
+            </div>
+        </div>
+    </div>
+
+</body>
+</html>
+
